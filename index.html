@@ -87,7 +87,7 @@
                 this.author = ko.observable("");
                 this.displayButtons = ko.observable(false);
                 this.radioWay = ko.observable("B");
-                this.albums = ko.observableArray(getFromFlicker(10, 100));
+                this.albums = ko.observableArray(getFromFlicker(0, 0));
                 
                 this.getPhotos = function () {
                     if ((this.author() != "")){
