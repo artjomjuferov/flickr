@@ -4,8 +4,138 @@
         <title>
             Use flickr!
         </title>
+        <script src="jquery-1.10.2.min.js"></script>
+        <script src="flickrapi.dev.js"></script>
     </head>
     <body>
+        <form data-bind="submit:getPhotos">
+            Enter Author: <input type="text" data-bind='value:author, valueUpdate: "afterkeydown"' />
+            <label>
+                <input name="way" type="radio" value="A" 
+                         data-bind="checked: radioWay" />
+                Pagination
+            </label>
+            <label>
+                <input name="way" type="radio" value="B" 
+                         data-bind="checked: radioWay" />
+                Without
+            </label>
+            <button type="submit" data-bind="enable: author().length > 0">Get</button>
+        </form>
         
+        <p data-bind='visible: displayButtons'>
+        </p>
+        
+        
+        <div data-bind='foreach: albums' >
+            <div style="border-style: solid;border-width: 1px;">
+                <div>
+                    <label>
+                        Name: 
+                    </label>
+                    <span data-bind='text: name'></span>
+                    <label>
+                        Url: 
+                    </label>
+                    <span data-bind='text: url'> </span>
+                    <label>
+                        Amount of photos: 
+                    </label>
+                    <span data-bind='text: photos.length'> </span>
+                </div>
+                
+            </div>
+        </div>
+        
+        <script src="knockout.js"></script>
+        <script type="text/javascript">
+           var flickr = new Flickr({
+              api_key: "3fc6d015f3fa928888e3501230ee0657"
+            });
+
+        
+          function Photo(url, size, name){
+              this.url = url;
+              this.size = size;
+              this.name = name;
+          }
+          
+            function Album(url, name)
+            {
+               this.url = url;
+              this.name = name;
+               this.photos = []
+            }
+            Album.prototype.addPhoto = function(photo){
+                this.photos.push(photo);
+            }
+           
+            function getFromFlicker(albumsN, photosN){
+                var albums = []; 
+                for(var i=0; i<albumsN; i++){
+                    var tmpAlbum = new Album("path/"+String(i),String(i));
+                    for(var j=0; j<Math.floor(Math.random()*photosN); j++){
+                        tmpAlbum.addPhoto(new Photo("path/"+String(i)+"/"+String(j), Math.floor(Math.random()*1000), String(j)));
+                    }
+                    albums.push(tmpAlbum);
+                }
+                return albums;
+            }
+           
+            var ViewModel = function() {
+                this.author = ko.observable("");
+                this.displayButtons = ko.observable(false);
+                this.radioWay = ko.observable("B");
+                this.albums = ko.observableArray(getFromFlicker(10, 100));
+                
+                this.getPhotos = function () {
+                    if ((this.author() != "")){
+                        if (this.radioWay() === "B"){
+                            this.displayButtons(true);
+                            var tmp = getFromFlicker(100, 10);
+                            for(var i=0; i<tmp.length; i++){
+                                this.albums.push(tmp.pop());
+                            }
+                        }else{
+                            this.displayButtons = false;
+                            var tmp = getFromFlicker(100, 10);
+                            for(var i=0; i<tmp.length; i++){
+                                this.albums.push(tmp.pop());
+                            }
+                        }
+                    }    
+                };
+                
+                
+            };
+            ko.bindingHandlers.hidden = {
+              update: function(element, valueAccessor){
+                var value = ko.utils.unwrapObservable(valueAccessor());
+             
+                ko.bindingHandlers.visible.update(element, function() {
+                  return !value;
+                });
+             
+              }
+};
+            ko.applyBindings(new ViewModel());
+        
+// Key:
+// 3fc6d015f3fa928888e3501230ee0657
+// Secret:
+// fa0ca8dda96dd5df
+// id:
+// 130814631@N07
+
+        //     flickr.photos.search({
+        //       text: "red+panda"
+        //     }, function(err, result) {
+        //       console.log(result);
+        //       if(err) { throw new Error(err); }
+        //       // do something with result
+        //     });
+        //   var r;
+             
+        </script>
     </body>
 </html>
