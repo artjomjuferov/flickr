@@ -24,7 +24,9 @@
         </form>
         
         <p data-bind='visible: displayButtons'>
-            Here will be sort buttons
+            Sort Albums
+            <button data-bind="click: albums.sort(byName), enable: albums().length > 1">By Name</button>
+            <button data-bind="click: albums.sort(byPhotos), enable: albums().length > 1">By Amount of photos</button>
         </p>
         
         
@@ -43,6 +45,17 @@
                         Amount of photos: 
                     </label>
                     <span data-bind='text: photos.length'> </span>
+                    
+                    <button data-bind="click: $root.showPagination, visible: photos.length>0">Show photos with pagination</button>
+                    <button data-bind="click: $root.showWithout, visible: photos.length>0">Show photos without</button>
+                    <div data-bind='foreach: photos, visible: visAlbum'>
+                        <label>Name:</label>
+                        <span data-bind='text: name'></span>
+                        <label>Url: </label>
+                        <span data-bind='text: url'> </span>
+                        <label>Size:</label>
+                        <span data-bind='text: size'></span>
+                    </div>
                 </div>
                 
             </div>
@@ -63,9 +76,10 @@
           
             function Album(url, name)
             {
-               this.url = url;
-              this.name = name;
-               this.photos = []
+                this.url = url;
+                this.name = name;
+                this.photos = [];
+                this.visAlbum =  ko.observable(false);
             }
             Album.prototype.addPhoto = function(photo){
                 this.photos.push(photo);
@@ -93,20 +107,20 @@
                     if ((this.author() != "")){
                         if (this.radioWay() === "B"){
                             this.displayButtons(true);
-                            var tmp = getFromFlicker(100, 10);
-                            for(var i=0; i<tmp.length; i++){
-                                this.albums.push(tmp.pop());
-                            }
+                            this.albums(getFromFlicker(100, 10));
                         }else{
-                            this.displayButtons = false;
-                            var tmp = getFromFlicker(100, 10);
-                            for(var i=0; i<tmp.length; i++){
-                                this.albums.push(tmp.pop());
-                            }
+                            this.displayButtons(false);
                         }
                     }    
                 };
+
+                this.showPagination = function (album) {
+                    // album.visAlbum(true);
+                };
                 
+                this.showWithout = function (album) {
+                    album.visAlbum(true);
+                };
                 
             };
             ko.bindingHandlers.hidden = {
@@ -118,9 +132,31 @@
                 });
              
               }
-};
+            };
             ko.applyBindings(new ViewModel());
         
+            //sorts
+            var byName = function(a, b) {
+                if(a.name < b.name){
+                    return -1;
+                }else if(a.name > b.name){
+                    return 1;
+                }else{
+                    return 0;
+                }
+            };
+
+            var byPhotos = function(a, b) {
+                if(a.photos.length < b.photos.length){
+                    return -1;
+                }else if(a.photos.length > b.photos.length){
+                    return 1;
+                }else{
+                    return 0;
+                }
+            };
+
+
 // Key:
 // 3fc6d015f3fa928888e3501230ee0657
 // Secret:
