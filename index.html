@@ -50,11 +50,8 @@
                     <button data-bind="click: $root.showWithout, visible: photos.length>0">Show photos without</button>
                     <div data-bind='foreach: photos, visible: visAlbum'>
                         <label>Name:</label>
-                        <span data-bind='text: name'></span>
-                        <label>Url: </label>
-                        <span data-bind='text: url'> </span>
-                        <label>Size:</label>
-                        <span data-bind='text: size'></span>
+                        <span data-bind='text: title'></span>
+                        <img data-bind="attr:{src: getPhotoUrl($data)}" /> 
                     </div>
                 </div>
                 
@@ -66,6 +63,12 @@
            var flickr = new Flickr({
               api_key: "3fc6d015f3fa928888e3501230ee0657"
             });
+
+        
+        function getPhotoUrl(item){
+            var url = 'http://farm' + item.farm + '.static.flickr.com/' + item.server + '/' + item.id + '_' + item.secret + '_m.jpg'
+            return url;
+        }
 
         
           function Photo(url, size, name){
@@ -107,7 +110,16 @@
                     if ((this.author() != "")){
                         if (this.radioWay() === "B"){
                             this.displayButtons(true);
-                            this.albums(getFromFlicker(100, 10));
+                            var albums = this.albums;
+                            flickr.photos.search({
+                              text: this.author()
+                            }, function(err, result) {
+                              if(err) { throw new Error(err); }
+                                var al = new Album('test','artjom');
+                                console.log(al);
+                                al.photos = result.photos.photo;
+                                albums(al);
+                            });
                         }else{
                             this.displayButtons(false);
                         }
@@ -164,14 +176,10 @@
 // id:
 // 130814631@N07
 
-        //     flickr.photos.search({
-        //       text: "red+panda"
-        //     }, function(err, result) {
-        //       console.log(result);
-        //       if(err) { throw new Error(err); }
-        //       // do something with result
-        //     });
-        //   var r;
+
+// $.each(data.items, function(i,item) {
+//                                   $("<img/>").attr("src", item.media.m).appendTo("#images");
+//                                 });
              
         </script>
     </body>
