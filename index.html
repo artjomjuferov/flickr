@@ -5,6 +5,8 @@
             Use flickr!
         </title>
         <script src="jquery-1.10.2.min.js"></script>
+        <script src="bootstrap.min.js"></script>
+        <script src="knockout-bootstrap.min.js"></script>
         <script src="flickrapi.dev.js"></script>
     </head>
     <body>
@@ -38,11 +40,12 @@
                 
                     <button data-bind="click: $root.showPagination, visible: photos.length>0">Show photos with pagination</button>
                     <button data-bind="click: $root.showWithout, visible: photos.length>0">Show photos without</button>
-                    <!-- <img data-bind="attr:{src: getPhotoUrl($data)}" />  -->
                 
                     <div data-bind='foreach: allPhotos, visible: visAlbum'>
-                        <span data-bind='text: title'></span>
-                        <img data-bind="attr:{src: getPhotoUrl($data)}" /> 
+                        <!-- <span data-bind='text: title'></span> -->
+                        <img data-bind="attr:{src: getPhotoUrl($data)}, tooltip: {title: title+' '+id, trigger: 'hover', placement: 'over'}" /> 
+
+                        <!-- data-bind="value: name, " /> -->
                     </div>
                 </div>
                 
@@ -129,25 +132,43 @@
                         photoset_id: album.id
                     }, function(err, result){
                         if(err) { alert(err); return; }
-                        album.allPhotos(result.photoset.photo);
+                        var arr = result.photoset.photo;
+                        //get size to sort
+                        // $.each(arr, function(i,item) {
+                        //     flickr.photos.getSizes({
+                        //         photo_id: item.id
+                        //     }, function(err, result){
+                        //         console.log(result);
+                        //     });
+                        // });
+                        album.allPhotos(arr);
                     });
                     console.log(album);
                     album.visAlbum(true);
                 };
                 
             };
-            ko.bindingHandlers.hidden = {
-              update: function(element, valueAccessor){
-                var value = ko.utils.unwrapObservable(valueAccessor());
-             
-                ko.bindingHandlers.visible.update(element, function() {
-                  return !value;
-                });
-             
-              }
-            };
             ko.applyBindings(new ViewModel());
-        
+
+            ko.bindingHandlers.tooltip = {
+                init: function(element, valueAccessor) {
+                    var local = ko.utils.unwrapObservable(valueAccessor()),
+                        options = {};
+
+                    ko.utils.extend(options, ko.bindingHandlers.tooltip.options);
+                    ko.utils.extend(options, local);
+
+                    $(element).tooltip(options);
+
+                    ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+                        $(element).tooltip("destroy");
+                    });
+                },
+                options: {
+                    placement: "right",
+                    trigger: "click"
+                }
+            };
             //sorts
             var byName = function(a, b) {
                 if(a.title._content < b.title._content){
