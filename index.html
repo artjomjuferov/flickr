@@ -38,9 +38,10 @@
                 
                     <button data-bind="click: $root.showPagination, visible: photos.length>0">Show photos with pagination</button>
                     <button data-bind="click: $root.showWithout, visible: photos.length>0">Show photos without</button>
+                    <!-- <img data-bind="attr:{src: getPhotoUrl($data)}" />  -->
                 
-                    <div data-bind='foreach: photos, visible: visAlbum'>
-                        <!-- <span data-bind='text: title'></span> -->
+                    <div data-bind='foreach: allPhotos, visible: visAlbum'>
+                        <span data-bind='text: title'></span>
                         <img data-bind="attr:{src: getPhotoUrl($data)}" /> 
                     </div>
                 </div>
@@ -104,10 +105,11 @@
                                   user_id: result.user.id
                                 }, function(errS, result) {
                                   if(errS) { alert(errS); return; }
-                                    var arr = result.photosets.photoset;
                                     //add attr for visibility
+                                    var arr = result.photosets.photoset;
                                     $.each(arr, function(i,item) {
                                         item['visAlbum'] = ko.observable(false);
+                                        item['allPhotos'] =  ko.observableArray([]);
                                     });
                                     albums(arr);
                                 });
@@ -127,8 +129,7 @@
                         photoset_id: album.id
                     }, function(err, result){
                         if(err) { alert(err); return; }
-                        console.log(result.photoset.photo);
-                        album['photos'] = result.photoset.photo;
+                        album.allPhotos(result.photoset.photo);
                     });
                     album.visAlbum(true);
                 };
