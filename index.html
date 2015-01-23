@@ -4,14 +4,13 @@
         <title>
             Use flickr!
         </title>
-        <script src="jquery-1.10.2.min.js"></script>
-        <script src="bootstrap.min.js"></script>
-        <script src="knockout-bootstrap.min.js"></script>
-        <script src="flickrapi.dev.js"></script>
+        <script data-main="scripts/app" src="scripts/require.js"></script>
     </head>
     <body>
         <form data-bind="submit:getPhotos">
             Enter Author: <input type="text" data-bind='value:author, valueUpdate: "afterkeydown"' />
+           <!--  Albums per page
+            <input type="text" data-bind='value:albumsPerPage, valueUpdate: "afterkeydown"' /> -->
             <label>
                 <input name="way" type="radio" value="A" 
                          data-bind="checked: radioWay" />
@@ -52,153 +51,6 @@
             </div>
         </div>
         
-        <script src="knockout.js"></script>
-        <script type="text/javascript">
-           var flickr = new Flickr({
-              api_key: "3fc6d015f3fa928888e3501230ee0657"
-            });
-
         
-        function getPhotoUrl(item){
-            console.log(item);
-            var url = 'http://farm' + item.farm + '.static.flickr.com/' + item.server + '/' + item.id + '_' + item.secret + '_m.jpg'
-            return url;
-        }
-          
-            // function Album(url, name)
-            // {
-            //     this.url = url;
-            //     this.name = name;
-            //     this.photos = [];
-            //     this.visAlbum =  ko.observable(false);
-            // }
-            // Album.prototype.addPhoto = function(photo){
-            //     this.photos.push(photo);
-            // }
-           
-            // function getFromFlicker(albumsN, photosN){
-            //     var albums = []; 
-            //     for(var i=0; i<albumsN; i++){
-            //         var tmpAlbum = new Album("path/"+String(i),String(i));
-            //         for(var j=0; j<Math.floor(Math.random()*photosN); j++){
-            //             tmpAlbum.addPhoto(new Photo("path/"+String(i)+"/"+String(j), Math.floor(Math.random()*1000), String(j)));
-            //         }
-            //         albums.push(tmpAlbum);
-            //     }
-            //     return albums;
-            // }
-           
-            var ViewModel = function() {
-                this.author = ko.observable("");
-                this.displayButtons = ko.observable(false);
-                this.radioWay = ko.observable("B");
-                this.albums = ko.observableArray([]);
-                
-                this.getPhotos = function () {
-                    if ((this.author() != "")){
-                        if (this.radioWay() === "B"){
-                            this.displayButtons(true);
-                            var albums = this.albums;
-                            var id;
-                            flickr.people.findByUsername({
-                                username: this.author()
-                            }, function(errU, result) {
-                              if(errU) { alert(errU); return; }
-                                flickr.photosets.getList({
-                                  user_id: result.user.id
-                                }, function(errS, result) {
-                                  if(errS) { alert(errS); return; }
-                                    //add attr for visibility
-                                    var arr = result.photosets.photoset;
-                                    $.each(arr, function(i,item) {
-                                        item['visAlbum'] = ko.observable(false);
-                                        item['allPhotos'] =  ko.observableArray([]);
-                                    });
-                                    albums(arr);
-                                });
-                            });
-                        }else{
-                            this.displayButtons(false);
-                        }
-                    }    
-                };
-
-                this.showPagination = function (album) {
-                    // album.visAlbum(true);
-                };
-                
-                this.showWithout = function (album) {
-                    flickr.photosets.getPhotos({
-                        photoset_id: album.id
-                    }, function(err, result){
-                        if(err) { alert(err); return; }
-                        var arr = result.photoset.photo;
-                        //get size to sort
-                        // $.each(arr, function(i,item) {
-                        //     flickr.photos.getSizes({
-                        //         photo_id: item.id
-                        //     }, function(err, result){
-                        //         console.log(result);
-                        //     });
-                        // });
-                        album.allPhotos(arr);
-                    });
-                    console.log(album);
-                    album.visAlbum(true);
-                };
-                
-            };
-            ko.applyBindings(new ViewModel());
-
-            ko.bindingHandlers.tooltip = {
-                init: function(element, valueAccessor) {
-                    var local = ko.utils.unwrapObservable(valueAccessor()),
-                        options = {};
-
-                    ko.utils.extend(options, ko.bindingHandlers.tooltip.options);
-                    ko.utils.extend(options, local);
-
-                    $(element).tooltip(options);
-
-                    ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-                        $(element).tooltip("destroy");
-                    });
-                },
-                options: {
-                    placement: "right",
-                    trigger: "click"
-                }
-            };
-            //sorts
-            var byName = function(a, b) {
-                if(a.title._content < b.title._content){
-                    return -1;
-                }else {
-                    return 1;
-                }
-            };
-
-            var byPhotos = function(a, b) {
-                if(parseInt(a.photos) < parseInt(b.photos)){
-                    return -1;
-                }else{
-                    return 1;
-                }
-            };
-
-
-// Key:
-// 3fc6d015f3fa928888e3501230ee0657
-// Secret:
-// fa0ca8dda96dd5df
-// id:
-// 130814631@N07
-
-
-// $.each(data.items, function(i,item) {
-//                                   $("<img/>").attr("src", item.media.m).appendTo("#images");
-//                                 });
-             
-        </script>
     </body>
 </html>
