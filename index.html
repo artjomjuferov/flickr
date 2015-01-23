@@ -131,6 +131,7 @@
                         if(err) { alert(err); return; }
                         album.allPhotos(result.photoset.photo);
                     });
+                    console.log(album);
                     album.visAlbum(true);
                 };
                 
@@ -149,22 +150,18 @@
         
             //sorts
             var byName = function(a, b) {
-                if(a.name < b.name){
+                if(a.title._content < b.title._content){
                     return -1;
-                }else if(a.name > b.name){
+                }else {
                     return 1;
-                }else{
-                    return 0;
                 }
             };
 
             var byPhotos = function(a, b) {
-                if(a.photos.length < b.photos.length){
+                if(parseInt(a.photos) < parseInt(b.photos)){
                     return -1;
-                }else if(a.photos.length > b.photos.length){
-                    return 1;
                 }else{
-                    return 0;
+                    return 1;
                 }
             };
 
