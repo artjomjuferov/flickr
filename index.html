@@ -33,24 +33,14 @@
         <div data-bind='foreach: albums' >
             <div style="border-style: solid;border-width: 1px;">
                 <div>
-                    <label>
-                        Name: 
-                    </label>
-                    <span data-bind='text: name'></span>
-                    <label>
-                        Url: 
-                    </label>
-                    <span data-bind='text: url'> </span>
-                    <label>
-                        Amount of photos: 
-                    </label>
-                    <span data-bind='text: photos.length'> </span>
-                    
+                    <span data-bind='text: title._content'></span>
+                    <span data-bind='text: photos'> </span>
+                
                     <button data-bind="click: $root.showPagination, visible: photos.length>0">Show photos with pagination</button>
                     <button data-bind="click: $root.showWithout, visible: photos.length>0">Show photos without</button>
+                
                     <div data-bind='foreach: photos, visible: visAlbum'>
-                        <label>Name:</label>
-                        <span data-bind='text: title'></span>
+                        <!-- <span data-bind='text: title'></span> -->
                         <img data-bind="attr:{src: getPhotoUrl($data)}" /> 
                     </div>
                 </div>
@@ -66,59 +56,61 @@
 
         
         function getPhotoUrl(item){
+            console.log(item);
             var url = 'http://farm' + item.farm + '.static.flickr.com/' + item.server + '/' + item.id + '_' + item.secret + '_m.jpg'
             return url;
         }
-
-        
-          function Photo(url, size, name){
-              this.url = url;
-              this.size = size;
-              this.name = name;
-          }
           
-            function Album(url, name)
-            {
-                this.url = url;
-                this.name = name;
-                this.photos = [];
-                this.visAlbum =  ko.observable(false);
-            }
-            Album.prototype.addPhoto = function(photo){
-                this.photos.push(photo);
-            }
+            // function Album(url, name)
+            // {
+            //     this.url = url;
+            //     this.name = name;
+            //     this.photos = [];
+            //     this.visAlbum =  ko.observable(false);
+            // }
+            // Album.prototype.addPhoto = function(photo){
+            //     this.photos.push(photo);
+            // }
            
-            function getFromFlicker(albumsN, photosN){
-                var albums = []; 
-                for(var i=0; i<albumsN; i++){
-                    var tmpAlbum = new Album("path/"+String(i),String(i));
-                    for(var j=0; j<Math.floor(Math.random()*photosN); j++){
-                        tmpAlbum.addPhoto(new Photo("path/"+String(i)+"/"+String(j), Math.floor(Math.random()*1000), String(j)));
-                    }
-                    albums.push(tmpAlbum);
-                }
-                return albums;
-            }
+            // function getFromFlicker(albumsN, photosN){
+            //     var albums = []; 
+            //     for(var i=0; i<albumsN; i++){
+            //         var tmpAlbum = new Album("path/"+String(i),String(i));
+            //         for(var j=0; j<Math.floor(Math.random()*photosN); j++){
+            //             tmpAlbum.addPhoto(new Photo("path/"+String(i)+"/"+String(j), Math.floor(Math.random()*1000), String(j)));
+            //         }
+            //         albums.push(tmpAlbum);
+            //     }
+            //     return albums;
+            // }
            
             var ViewModel = function() {
                 this.author = ko.observable("");
                 this.displayButtons = ko.observable(false);
                 this.radioWay = ko.observable("B");
-                this.albums = ko.observableArray(getFromFlicker(0, 0));
+                this.albums = ko.observableArray([]);
                 
                 this.getPhotos = function () {
                     if ((this.author() != "")){
                         if (this.radioWay() === "B"){
                             this.displayButtons(true);
                             var albums = this.albums;
-                            flickr.photos.search({
-                              text: this.author()
-                            }, function(err, result) {
-                              if(err) { throw new Error(err); }
-                                var al = new Album('test','artjom');
-                                console.log(al);
-                                al.photos = result.photos.photo;
-                                albums(al);
+                            var id;
+                            flickr.people.findByUsername({
+                                username: this.author()
+                            }, function(errU, result) {
+                              if(errU) { alert(errU); return; }
+                                flickr.photosets.getList({
+                                  user_id: result.user.id
+                                }, function(errS, result) {
+                                  if(errS) { alert(errS); return; }
+                                    var arr = result.photosets.photoset;
+                                    //add attr for visibility
+                                    $.each(arr, function(i,item) {
+                                        item['visAlbum'] = ko.observable(false);
+                                    });
+                                    albums(arr);
+                                });
                             });
                         }else{
                             this.displayButtons(false);
@@ -131,6 +123,13 @@
                 };
                 
                 this.showWithout = function (album) {
+                    flickr.photosets.getPhotos({
+                        photoset_id: album.id
+                    }, function(err, result){
+                        if(err) { alert(err); return; }
+                        console.log(result.photoset.photo);
+                        album['photos'] = result.photoset.photo;
+                    });
                     album.visAlbum(true);
                 };
                 
