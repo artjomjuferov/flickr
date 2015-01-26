@@ -4,6 +4,8 @@ define(['knockout', 'jquery', 'flickrapi'], function(ko, $) {
           api_key: api
         });
 
+        var globalSelf = this;
+
         this.author = ko.observable("kasia derwinska");
         this.displayButtons = ko.observable(false);
         this.radioWay = ko.observable("B");
@@ -31,11 +33,11 @@ define(['knockout', 'jquery', 'flickrapi'], function(ko, $) {
                             var arr = result.photosets.photoset;
                             $.each(arr, function(i,item) {
                                 item['visAlbum'] = ko.observable(false);
+                                item['visPagination'] =  ko.observable(false);
                                 item['allPhotos'] =  ko.observableArray([]);
+                                item['photoPages'] =  ko.observableArray([]);
                             });
-
                             self.albumPages(result.photosets.pages);
-                            console.log(self.albumPages());
                             self.albums(arr);
                         });
                     });
@@ -48,9 +50,23 @@ define(['knockout', 'jquery', 'flickrapi'], function(ko, $) {
 
         this.getPhotos(1);
 
-        //this.showPagination = function (album) {
-        //    // album.visAlbum(true);
-        //};
+        this.showPagination = function (album, page) {
+            console.log(globalSelf);
+            window.flickr.photosets.getPhotos({
+                photoset_id: album.id,
+                page: page,
+                per_page: globalSelf.perPage()
+
+            }, function(err, result){
+                if(err) { alert(err); return; }
+                var arr = result.photoset.photo;
+                album.allPhotos(arr);
+                album.photoPages(result.photoset.pages);
+            });
+
+            album.visPagination(true);
+            album.visAlbum(true);
+        };
 
         
         this.showWithout = function (album) {
@@ -69,6 +85,7 @@ define(['knockout', 'jquery', 'flickrapi'], function(ko, $) {
                 // });
                 album.allPhotos(arr);
             });
+            album.visPagination(false);
             album.visAlbum(true);
         };
 

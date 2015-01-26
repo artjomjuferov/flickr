@@ -36,12 +36,20 @@
                 <div>
                     <span data-bind='text: title._content'></span>
                     <span data-bind='text: photos'> </span>
-                
+
+                    <!--<span data-bind='text: ko.toJSON($root)'> </span>-->
+
                     <button data-bind="click: $root.showPagination, visible: photos.length>0">Show photos with pagination</button>
                     <button data-bind="click: $root.showWithout, visible: photos.length>0">Show photos without</button>
-                
+
                     <div data-bind='foreach: allPhotos, visible: visAlbum'>
+                        <!--<span data-bind="attr:{src: getPhotoUrl($data)}, tooltip: {title: title+' '+id, trigger: 'hover', placement: 'over'}"></span>-->
                         <img data-bind="attr:{src: getPhotoUrl($data)}, tooltip: {title: title+' '+id, trigger: 'hover', placement: 'over'}" />
+                        <!--<span data-bind='text: ko.toJSON($root)'> </span>-->
+                    </div>
+
+                    <div data-bind="visible: visPagination, foreach: new Array(photoPages())" style="display: none">
+                        <a href="#" data-bind='click: function(){return $root.showPagination($parent, $index()+1)} , text: $index()+1'></a>
                     </div>
                 </div>
                 
@@ -49,7 +57,7 @@
         </div>
 
         <div data-bind="foreach: new Array(albumPages())">
-            <a href="#" data-bind='click: function(){return getPhotos($index()+1)} , text: $index()+1'></a>
+            <a href="#" data-bind='click: function(){return $root.getPhotos($index()+1)} , text: $index()+1'></a>
         </div>
     </body>
 </html>

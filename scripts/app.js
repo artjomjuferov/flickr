@@ -10,6 +10,7 @@ requirejs([
             'knockout',
             'jquery',
             'bootstrap'
+            //'knockout-bootstrap'
         ],
 function (viewModel, ko) {
     var model = new viewModel("3fc6d015f3fa928888e3501230ee0657");
