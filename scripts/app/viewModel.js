@@ -9,10 +9,10 @@ define(['knockout', 'jquery', 'flickrapi'], function(ko, $) {
         this.radioWay = ko.observable("B");
         this.albums = ko.observableArray([]);
         this.perPage = ko.observable(10);
-        this.albumPages = ko.observable(4);
+        this.albumPages = ko.observable(0);
 
         this.getPhotos = function (pageNumber) {
-            self = this;
+            var self = this;
             if ((self.author() != "")){
                 if (self.radioWay() === "B"){
                     self.displayButtons(true);

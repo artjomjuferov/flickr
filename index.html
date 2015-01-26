@@ -7,7 +7,7 @@
         <script data-main="scripts/app" src="scripts/require.js"></script>
     </head>
     <body>
-        <form data-bind="submit:getPhotos.bind(1)">
+        <form data-bind="submit:function(){return getPhotos(1)}">
             Enter Author: <input type="text" data-bind='value:author, valueUpdate: "afterkeydown"' />
            <!--  Albums per page
             <input type="text" data-bind='value:albumsPerPage, valueUpdate: "afterkeydown"' /> -->
@@ -49,7 +49,7 @@
         </div>
 
         <div data-bind="foreach: new Array(albumPages())">
-            <!--<a href="#" data-bind='click:getPhotos($data, $index+1) , text: $index()+1'></a>-->
+            <a href="#" data-bind='click: function(){return getPhotos($index()+1)} , text: $index()+1'></a>
         </div>
     </body>
 </html>
