@@ -56,7 +56,7 @@
             </div>
         </div>
 
-        <div data-bind="foreach: new Array(albumPages())">
+        <div data-bind="foreach: new Array(albumPages()), visible: !displayButtons()">
             <a href="#" data-bind='click: function(){return $root.getPhotos($index()+1)} , text: $index()+1'></a>
         </div>
     </body>

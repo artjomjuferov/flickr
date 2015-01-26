@@ -24,9 +24,7 @@ define(['knockout', 'jquery', 'flickrapi'], function(ko, $) {
                     }, function(errU, result) {
                       if(errU) { alert(errU); return; }
                         window.flickr.photosets.getList({
-                            user_id: result.user.id,
-                            page: pageNumber,
-                            per_page: self.perPage()
+                            user_id: result.user.id
                         }, function(errS, result) {
                           if(errS) { alert(errS); return; }
                             //add attr for visibility
@@ -43,6 +41,28 @@ define(['knockout', 'jquery', 'flickrapi'], function(ko, $) {
                     });
                 }else{
                     self.displayButtons(false);
+                    window.flickr.people.findByUsername({
+                        username: self.author()
+                    }, function(errU, result) {
+                        if(errU) { alert(errU); return; }
+                        window.flickr.photosets.getList({
+                            user_id: result.user.id,
+                            page: pageNumber,
+                            per_page: self.perPage()
+                        }, function(errS, result) {
+                            if(errS) { alert(errS); return; }
+                            //add attr for visibility
+                            var arr = result.photosets.photoset;
+                            $.each(arr, function(i,item) {
+                                item['visAlbum'] = ko.observable(false);
+                                item['visPagination'] =  ko.observable(false);
+                                item['allPhotos'] =  ko.observableArray([]);
+                                item['photoPages'] =  ko.observableArray([]);
+                            });
+                            self.albumPages(result.photosets.pages);
+                            self.albums(arr);
+                        });
+                    });
                 }
             }
         };
@@ -51,7 +71,6 @@ define(['knockout', 'jquery', 'flickrapi'], function(ko, $) {
         this.getPhotos(1);
 
         this.showPagination = function (album, page) {
-            console.log(globalSelf);
             window.flickr.photosets.getPhotos({
                 photoset_id: album.id,
                 page: page,
