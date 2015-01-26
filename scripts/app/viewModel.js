@@ -4,14 +4,14 @@ define(['knockout', 'jquery', 'flickrapi'], function(ko, $) {
           api_key: api
         });
 
-        this.author = ko.observable("");
+        this.author = ko.observable("kasia derwinska");
         this.displayButtons = ko.observable(false);
         this.radioWay = ko.observable("B");
         this.albums = ko.observableArray([]);
+        this.perPage = ko.observable(10);
+        this.albumPages = ko.observable(4);
 
-        // this.albumsPerPage = ko.observable(10);
-
-        this.getPhotos = function () {
+        this.getPhotos = function (pageNumber) {
             self = this;
             if ((self.author() != "")){
                 if (self.radioWay() === "B"){
@@ -22,7 +22,9 @@ define(['knockout', 'jquery', 'flickrapi'], function(ko, $) {
                     }, function(errU, result) {
                       if(errU) { alert(errU); return; }
                         window.flickr.photosets.getList({
-                          user_id: result.user.id
+                            user_id: result.user.id,
+                            page: pageNumber,
+                            per_page: self.perPage()
                         }, function(errS, result) {
                           if(errS) { alert(errS); return; }
                             //add attr for visibility
@@ -31,23 +33,27 @@ define(['knockout', 'jquery', 'flickrapi'], function(ko, $) {
                                 item['visAlbum'] = ko.observable(false);
                                 item['allPhotos'] =  ko.observableArray([]);
                             });
+
+                            self.albumPages(result.photosets.pages);
+                            console.log(self.albumPages());
                             self.albums(arr);
                         });
                     });
                 }else{
                     self.displayButtons(false);
                 }
-            }    
-            console.log(window.flickr);
+            }
         };
 
-        this.showPagination = function (album) {
-            // album.visAlbum(true);
-        };
+
+        this.getPhotos(1);
+
+        //this.showPagination = function (album) {
+        //    // album.visAlbum(true);
+        //};
 
         
         this.showWithout = function (album) {
-            console.log(window.flickr);
             window.flickr.photosets.getPhotos({
                 photoset_id: album.id
             }, function(err, result){
@@ -63,7 +69,6 @@ define(['knockout', 'jquery', 'flickrapi'], function(ko, $) {
                 // });
                 album.allPhotos(arr);
             });
-            console.log(album);
             album.visAlbum(true);
         };
 
@@ -91,13 +96,8 @@ define(['knockout', 'jquery', 'flickrapi'], function(ko, $) {
     };
 });
 
-
-
         
 function getPhotoUrl(item){
     var url = 'http://farm' + item.farm + '.static.flickr.com/' + item.server + '/' + item.id + '_' + item.secret + '_m.jpg'
     return url;
 }
-
-
-//sorts
