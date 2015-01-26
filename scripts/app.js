@@ -9,11 +9,11 @@ requirejs([
             'app/viewModel',
             'knockout',
             'jquery',
-            'bootstrap',
-            'knockout-bootstrap'
+            'bootstrap'
         ],
 function (viewModel, ko) {
-    ko.applyBindings(new viewModel("3fc6d015f3fa928888e3501230ee0657"));
+    var model = new viewModel("3fc6d015f3fa928888e3501230ee0657");
+    ko.applyBindings(model);
     ko.bindingHandlers.tooltip = {
         init: function(element, valueAccessor) {
             var local = ko.utils.unwrapObservable(valueAccessor()),
