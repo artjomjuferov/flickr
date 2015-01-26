@@ -7,7 +7,7 @@
         <script data-main="scripts/app" src="scripts/require.js"></script>
     </head>
     <body>
-        <form data-bind="submit:getPhotos">
+        <form data-bind="submit:getPhotos.bind(1)">
             Enter Author: <input type="text" data-bind='value:author, valueUpdate: "afterkeydown"' />
            <!--  Albums per page
             <input type="text" data-bind='value:albumsPerPage, valueUpdate: "afterkeydown"' /> -->
@@ -24,7 +24,7 @@
             <button type="submit" data-bind="enable: author().length > 0">Get</button>
         </form>
         
-        <p data-bind='visible: displayButtons'>
+        <p data-bind='visible: displayButtons' style="display: none">
             Sort Albums
             <button data-bind="click: albums.sort(byName), enable: albums().length > 1">By Name</button>
             <button data-bind="click: albums.sort(byPhotos), enable: albums().length > 1">By Amount of photos</button>
@@ -41,16 +41,15 @@
                     <button data-bind="click: $root.showWithout, visible: photos.length>0">Show photos without</button>
                 
                     <div data-bind='foreach: allPhotos, visible: visAlbum'>
-                        <!-- <span data-bind='text: title'></span> -->
-                        <img data-bind="attr:{src: getPhotoUrl($data)}, tooltip: {title: title+' '+id, trigger: 'hover', placement: 'over'}" /> 
-
-                        <!-- data-bind="value: name, " /> -->
+                        <img data-bind="attr:{src: getPhotoUrl($data)}, tooltip: {title: title+' '+id, trigger: 'hover', placement: 'over'}" />
                     </div>
                 </div>
                 
             </div>
         </div>
-        
-        
+
+        <div data-bind="foreach: new Array(albumPages())">
+            <!--<a href="#" data-bind='click:getPhotos($data, "2") , text: $index()+1'></a>-->
+        </div>
     </body>
 </html>
